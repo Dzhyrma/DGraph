@@ -7,12 +7,12 @@ import java.util.function.BiFunction;
 
 import org.dgraph.collections.FibonacciHeap;
 import org.dgraph.collections.Tuple;
-import org.dgraph.graph.WeightedGraph;
+import org.dgraph.graph.Graph;
 import org.dgraph.graph.edge.WeightedEdge;
 
 public class AStarSearch {
 
-	public static <V, E extends WeightedEdge<V>> List<Tuple<V, Double>> findShortestPath(WeightedGraph<V, E> graph, V source, V target,
+	public static <V, E extends WeightedEdge<V>> List<Tuple<V, Double>> findShortestPath(Graph<V, E> graph, V source, V target,
 	                BiFunction<V, V, Double> heuristic) {
 		HashMap<V, Tuple<V, Double>> info = new HashMap<>();
 		FibonacciHeap<V> priorityQueue = new FibonacciHeap<>();

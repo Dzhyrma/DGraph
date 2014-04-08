@@ -6,12 +6,12 @@ import java.util.List;
 
 import org.dgraph.collections.FibonacciHeap;
 import org.dgraph.collections.Tuple;
-import org.dgraph.graph.WeightedGraph;
+import org.dgraph.graph.Graph;
 import org.dgraph.graph.edge.WeightedEdge;
 
 public class Dijkstra {
 
-	public static <V, E extends WeightedEdge<V>> List<Tuple<V, Double>> findShortestPath(WeightedGraph<V, E> graph, V source, V target) {
+	public static <V, E extends WeightedEdge<V>> List<Tuple<V, Double>> findShortestPath(Graph<V, E> graph, V source, V target) {
 		HashMap<V, Tuple<V, Double>> info = new HashMap<>();
 		FibonacciHeap<V> priorityQueue = new FibonacciHeap<>();
 		info.put(source, new Tuple<V, Double>(null, Double.valueOf(0d)));
