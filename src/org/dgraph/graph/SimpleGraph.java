@@ -1,17 +1,42 @@
 package org.dgraph.graph;
 
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 
 import org.dgraph.graph.edge.Edge;
 
-public class SimpleGraph<V, E extends Edge<V>> implements Graph<V, E> {
+public class SimpleGraph<V, E extends Edge<V>> implements Graph<V, E>, Serializable {
+
+	private static final long serialVersionUID = -4055201812984599572L;
 
 	static abstract class SetExtension<T> extends HashSet<T> {
+
+		@Override
+		public Iterator<T> iterator() {
+			return Collections.unmodifiableSet(this).iterator();
+		}
+
+		@Override
+		public void clear() {
+			for (Iterator<?> i = iterator(); i.hasNext();)
+				remove(i.next());
+		}
+
+		@Override
+		public boolean removeAll(Collection<?> c) {
+			Objects.requireNonNull(c);
+			boolean modified = false;
+			for (Iterator<?> i = c.iterator(); i.hasNext();)
+				modified |= remove(i.next());
+			return modified;
+		}
 
 		boolean superAdd(T e) {
 			return super.add(e);
@@ -26,7 +51,7 @@ public class SimpleGraph<V, E extends Edge<V>> implements Graph<V, E> {
 	private Map<V, SetExtension<E>> incomingEdges = new HashMap<>();
 	private SetExtension<E> edges = new EdgeSetAll();
 	private SetExtension<V> vertices = new VertexSet();
-	
+
 	final class VertexSet extends SetExtension<V> {
 
 		@Override
@@ -266,4 +291,51 @@ public class SimpleGraph<V, E extends Edge<V>> implements Graph<V, E> {
 		return graph.size();
 	}
 
+	@Override
+	public boolean containsEdge(V v1, V v2) {
+		EdgeMap map = graph.get(v1);
+		return map == null ? false : map.containsKey(v2);
+	}
+
+	@Override
+	public Set<E> getEdgesToTarget(V v) {
+		return incomingEdges.get(v);
+	}
+
+	@Override
+	public boolean removeAllEdges(Collection<E> e) {
+		Objects.requireNonNull(e);
+		boolean modified = false;
+		for (Iterator<?> i = e.iterator(); i.hasNext();)
+			modified |= edges.remove(i.next());
+		return modified;
+	}
+
+	@Override
+	public boolean removeAllVertices(Collection<V> v) {
+		Objects.requireNonNull(v);
+		boolean modified = false;
+		for (Iterator<?> i = v.iterator(); i.hasNext();)
+			modified |= vertices.remove(i.next());
+		return modified;
+	}
+
+	@Override
+	public void clear() {
+		for (Iterator<?> i = vertices.iterator(); i.hasNext();)
+			vertices.remove(i.next());
+	}
+
+	private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+		out.writeInt(edges.size());
+		for (Iterator<?> i = edges.iterator(); i.hasNext();)
+			out.writeObject(i.next());
+	}
+
+	@SuppressWarnings("unchecked")
+	private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+		int size = in.readInt();
+		for (; size > 0; size--)
+			edges.add((E) in.readObject());
+	}
 }
