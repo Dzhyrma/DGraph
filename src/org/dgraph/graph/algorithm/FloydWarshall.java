@@ -8,7 +8,7 @@ import org.dgraph.graph.Graph;
 import org.dgraph.graph.edge.WeightedEdge;
 
 public class FloydWarshall {
-	public static <V, E extends WeightedEdge<V>> HashMap<V, HashMap<V, Double>> findAllShortestPaths(Graph<V, E> graph) {
+	public static <V, E extends WeightedEdge<V, W>, W> HashMap<V, HashMap<V, Double>> findAllShortestPaths(Graph<V, E> graph) {
 		int N = graph.sizeOfVertices();
 		ArrayList<V> vertices = new ArrayList<>(N);
 		double[][] distances = new double[N][N];

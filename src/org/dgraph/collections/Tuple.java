@@ -27,4 +27,11 @@ public class Tuple<I1, I2> {
 	public final void setItem2(I2 item2) {
 		this.item2 = item2;
 	}
+
+	@Override
+	public String toString() {
+		return String.format("{%s, %s}", item1, item2);
+	}
+	
+	
 }

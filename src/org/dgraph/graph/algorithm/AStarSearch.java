@@ -12,8 +12,8 @@ import org.dgraph.graph.edge.WeightedEdge;
 
 public class AStarSearch {
 
-	public static <V, E extends WeightedEdge<V>> List<Tuple<V, Double>> findShortestPath(Graph<V, E> graph, V source, V target,
-	                BiFunction<V, V, Double> heuristic) {
+	public static <V, E extends WeightedEdge<V, W>, W> List<Tuple<V, Double>> findShortestPath(
+			Graph<V, E> graph, V source, V target, BiFunction<V, V, Double> heuristic) {
 		HashMap<V, Tuple<V, Double>> info = new HashMap<>();
 		FibonacciHeap<V> priorityQueue = new FibonacciHeap<>();
 		info.put(source, new Tuple<V, Double>(null, Double.valueOf(0d)));
@@ -24,9 +24,11 @@ public class AStarSearch {
 				break;
 			for (E e : graph.getEdgesFromSource(cur)) {
 				if (e.getWeight() < 0)
-					throw new IllegalArgumentException("A* search algorithm can be applied only for graphs with non negative weights.");
+					throw new IllegalArgumentException(
+							"A* search algorithm can be applied only for graphs with non negative weights.");
 				V adj = e.getTarget();
-				double newDistance = info.get(cur).getItem2().doubleValue() + e.getWeight();
+				double newDistance =
+					info.get(cur).getItem2().doubleValue() + e.getWeight();
 				boolean hasKey = info.containsKey(adj);
 				if (!hasKey || info.get(adj).getItem2().doubleValue() > newDistance) {
 					Tuple<V, Double> t;
@@ -38,7 +40,8 @@ public class AStarSearch {
 					}
 					t.setItem1(cur);
 					t.setItem2(Double.valueOf(newDistance));
-					priorityQueue.enqueue(adj, newDistance + heuristic.apply(adj, target));
+					priorityQueue
+							.enqueue(adj, newDistance + heuristic.apply(adj, target));
 				}
 			}
 		}

@@ -18,8 +18,8 @@ public class BellmanFord {
 	 * Bellman–Ford runs in O(|V|*|E|) time, where |V| and |E| are the number of
 	 * vertices and edges respectively.
 	 * 
-	 * @param graph weighted graph
-	 * @param source source vertex
+	 * @param graph the weighted graph
+	 * @param source the source vertex
 	 * @param checkNegativeCycles if true, method will throw IllegalArgumentException if a negative cycle exists
 	 * @return Hash map with all vertices from a given graph as keys, and tuples
 	 *         with two parameters as values. First parameter in the tuple
@@ -28,7 +28,7 @@ public class BellmanFord {
 	 *         second parameter is a distance from the source vertex to the
 	 *         current one (Double.POSITIVE_INFINITY if there is no path from
 	 *         source) */
-	public static <V, E extends WeightedEdge<V>> HashMap<V, Tuple<V, Double>> findAllShortestPaths(Graph<V, E> graph, V source, boolean checkNegativeCycles) {
+	public static <V, E extends WeightedEdge<V, W>, W> HashMap<V, Tuple<V, Double>> findAllShortestPaths(Graph<V, E> graph, V source, boolean checkNegativeCycles) {
 		int vSize = graph.sizeOfVertices();
 		HashMap<V, Tuple<V, Double>> info = new HashMap<>(vSize);
 		info.put(source, new Tuple<V, Double>(null, Double.valueOf(0d)));
@@ -50,7 +50,7 @@ public class BellmanFord {
 						t = new Tuple<V, Double>();
 						info.put(trg, t); 
 					}
-					t.setItem1(trg);
+					t.setItem1(src);
 					t.setItem2(Double.valueOf(distance));
 					hasChanges = true;
 				}

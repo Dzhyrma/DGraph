@@ -23,7 +23,7 @@ public class MinCostMaxFlow {
 			MinCostMaxFlow.error = error;
 	}
 
-	public static <V, E extends WeightedEdge<V> & FlowEdge<V>> Tuple<Double, Double> getMaximumFlowWithMinCost(Graph<V, E> network, V source, V sink,
+	public static <V, E extends WeightedEdge<V, W> & FlowEdge<V>, W> Tuple<Double, Double> getMaximumFlowWithMinCost(Graph<V, E> network, V source, V sink,
 	                boolean resetFlowOnStart) {
 		int vSize = network.sizeOfVertices();
 		HashMap<V, HashSet<E>> reverseEdges = new HashMap<>(vSize);

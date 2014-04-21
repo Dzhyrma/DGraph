@@ -9,29 +9,27 @@ import org.dgraph.graph.Graph;
 import org.dgraph.graph.edge.WeightedEdge;
 
 public class Johnson {
-	public static <V, E extends WeightedEdge<V>> HashMap<V, HashMap<V, Tuple<V, Double>>> findAllShortestPaths(Graph<V, E> graph) {
+
+	public static <V, E extends WeightedEdge<V, W>, W> HashMap<V, HashMap<V, Tuple<V, Double>>> findAllShortestPaths(Graph<V, E> graph) {
 		HashMap<V, Double> h = new HashMap<>();
 		Set<E> edges = graph.getAllEdges();
 		Set<V> vertices = graph.getAllVertices();
 		for (V v : vertices)
 			h.put(v, Double.valueOf(0d));
-		for (int i = 1; i < graph.sizeOfVertices() - 1; i++) {
+		for (int i = 1; i < graph.sizeOfVertices() - 1; i++)
 			for (E e : edges) {
 				V src = e.getSource();
 				V trg = e.getTarget();
 				double distance = h.get(src).doubleValue() + e.getWeight();
-				if (h.get(trg).doubleValue() > distance) {
+				if (h.get(trg).doubleValue() > distance)
 					h.put(trg, Double.valueOf(distance));
-				}
 			}
-		}
 		for (E e : edges) {
 			V src = e.getSource();
 			V trg = e.getTarget();
 			double distance = h.get(src).doubleValue() + e.getWeight();
-			if (h.get(trg).doubleValue() > distance) {
+			if (h.get(trg).doubleValue() > distance)
 				throw new IllegalArgumentException("Graph contains a negative-weight cycle");
-			}
 		}
 		HashMap<V, HashMap<V, Tuple<V, Double>>> result = new HashMap<>();
 		for (V source : vertices) {
@@ -47,9 +45,9 @@ public class Johnson {
 					boolean hasKey = info.containsKey(adj);
 					if (!hasKey || info.get(adj).getItem2().doubleValue() > newDistance) {
 						Tuple<V, Double> t;
-						if (hasKey) {
+						if (hasKey)
 							t = info.get(adj);
-						} else {
+						else {
 							t = new Tuple<V, Double>();
 							info.put(adj, t);
 						}
@@ -59,14 +57,12 @@ public class Johnson {
 					}
 				}
 			}
-			for (V v : vertices) {
+			for (V v : vertices)
 				if (info.containsKey(v)) {
 					Tuple<V, Double> t = info.get(v);
 					t.setItem2(Double.valueOf(t.getItem2().doubleValue() - h.get(source).doubleValue() + h.get(v).doubleValue()));
-				} else {
+				} else
 					info.put(v, new Tuple<V, Double>(null, Double.POSITIVE_INFINITY));
-				}
-			}
 			result.put(source, info);
 		}
 		return result;
