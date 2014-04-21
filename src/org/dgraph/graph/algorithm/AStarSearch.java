@@ -49,9 +49,9 @@ public class AStarSearch {
 			return null;
 		LinkedList<Tuple<V, Double>> result = new LinkedList<>();
 		V cur = target;
-		result.offer(info.get(cur));
+		result.push(info.get(cur));
 		while ((cur = info.get(cur).getItem1()) != null)
-			result.offer(info.get(cur));
+			result.push(info.get(cur));
 		return result;
 	}
 }

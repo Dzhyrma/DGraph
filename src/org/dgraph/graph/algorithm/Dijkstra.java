@@ -44,9 +44,9 @@ public class Dijkstra {
 			return null;
 		LinkedList<Tuple<V, Double>> result = new LinkedList<>();
 		V cur = target;
-		result.offer(info.get(cur));
+		result.push(new Tuple<V, Double>(cur, info.get(cur).getItem2()));
 		while ((cur = info.get(cur).getItem1()) != null)
-			result.offer(info.get(cur));
+			result.push(new Tuple<V, Double>(cur, info.get(cur).getItem2()));
 		return result;
 	}
 }

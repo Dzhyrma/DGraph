@@ -30,10 +30,10 @@ public class BreadthFirstSearch {
 			return null;
 		LinkedList<V> result = new LinkedList<>();
 		V cur = target;
-		result.offer(cur);
+		result.push(cur);
 		while (previous.get(cur) != null) {
 			cur = previous.get(cur);
-			result.offer(cur);
+			result.push(cur);
 		}
 		return result;
 	}
