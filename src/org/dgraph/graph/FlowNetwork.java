@@ -1,7 +1,15 @@
 package org.dgraph.graph;
 
-import org.dgraph.graph.edge.FlowEdge;
+public interface FlowNetwork<V, E extends FlowNetwork.FlowEdge<V>> extends Graph<V, E> {
+	
+	public interface FlowEdge<V> extends Graph.Edge<V>{
 
-public interface FlowNetwork<V, E extends FlowEdge<V>> extends Graph<V, E> {
-
+		public double getFlow();
+		
+		public void setFlow(double flow);
+		
+		public double getCapacity();
+		
+	}
+	
 }

@@ -3,17 +3,23 @@ package org.dgraph.graph;
 import java.util.Collection;
 import java.util.Set;
 
-import org.dgraph.graph.edge.Edge;
-
 /** Main interface for all graphs in DGraph library.
  *
  * @param <V> type for vertices
  * @param <E> type for edges. Should implement
- *            <code>org.dgraph.edge.Edge&lt;V&gt;</code> interface
+ *            {@link org.dgraph.graph.Graph.Edge Edge&lt;V&gt;} interface
  *
  * @author Andrii Dzhyrma
  * @since April 17, 2014 */
-public interface Graph<V, E extends Edge<V>> {
+public interface Graph<V, E extends Graph.Edge<V>> {
+
+	public interface Edge<V> {
+		
+		public V getSource();
+
+		public V getTarget();
+		
+	}
 
 	/** Adds a new edge to the graph.
 	 *
@@ -56,17 +62,20 @@ public interface Graph<V, E extends Edge<V>> {
 	 * @throws NullPointerException if the vertex is <tt>null</tt> */
 	public boolean addVertex(V v);
 
-	/** Returns <tt>true</tt> if this graph contains the specified vertex.
+	/** Removes all of the vertices and edges from this graph. The graph will be
+	 * empty after this call returns. */
+	public void clear();
+
+	/** Returns <tt>true</tt> if this graph contains the specified edge.
 	 *
 	 * <p>
-	 * This graph uses {@code equals()} to distinguish vertices between each
-	 * other.
+	 * This graph uses {@code equals()} to distinguish edges between each other.
 	 * </p>
 	 *
-	 * @param v vertex to be checked
+	 * @param e edge to be checked
 	 *
-	 * @return <tt>true</tt> if this graph contains the specified vertex. */
-	public boolean containsVertex(V v);
+	 * @return <tt>true</tt> if this graph contains the specified edge. */
+	public boolean containsEdge(E e);
 
 	/** Returns <tt>true</tt> if this graph contains the specified edge.
 	 *
@@ -82,16 +91,17 @@ public interface Graph<V, E extends Edge<V>> {
 	 *         specified vertices. */
 	public boolean containsEdge(V v1, V v2);
 
-	/** Returns <tt>true</tt> if this graph contains the specified edge.
+	/** Returns <tt>true</tt> if this graph contains the specified vertex.
 	 *
 	 * <p>
-	 * This graph uses {@code equals()} to distinguish edges between each other.
+	 * This graph uses {@code equals()} to distinguish vertices between each
+	 * other.
 	 * </p>
 	 *
-	 * @param e edge to be checked
+	 * @param v vertex to be checked
 	 *
-	 * @return <tt>true</tt> if this graph contains the specified edge. */
-	public boolean containsEdge(E e);
+	 * @return <tt>true</tt> if this graph contains the specified vertex. */
+	public boolean containsVertex(V v);
 
 	/** Returns a {@link Set} view of the edges contained in this graph. The set
 	 * is backed by the graph, so changes to the graph are reflected in the set,
@@ -172,26 +182,12 @@ public interface Graph<V, E extends Edge<V>> {
 	 *         in this graph */
 	public Set<E> getEdgesToTarget(V v);
 
-	/** Removes an edge from this graph.
-	 *
-	 * @param e edge to be removed
-	 *
-	 * @return <tt>true</tt> if the edge has been successfully removed */
-	public boolean removeEdge(E e);
-
 	/** Removes all edges specified in the given collection from this graph.
 	 *
 	 * @param e collection with edges to be removed
 	 *
 	 * @return <tt>true</tt> if this graph has been modified */
 	public boolean removeAllEdges(Collection<E> e);
-
-	/** Removes a vertex from this graph.
-	 *
-	 * @param v vertex to be removed
-	 *
-	 * @return <tt>true</tt> if the vertex has been successfully removed */
-	public boolean removeVertex(V v);
 
 	/** Removes all vertices specified in the given collection from this graph.
 	 *
@@ -200,15 +196,25 @@ public interface Graph<V, E extends Edge<V>> {
 	 * @return <tt>true</tt> if this graph has been modified */
 	public boolean removeAllVertices(Collection<V> v);
 
-	/** Removes all of the vertices and edges from this graph. The graph will be
-	 * empty after this call returns. */
-	public void clear();
+	/** Removes an edge from this graph.
+	 *
+	 * @param e edge to be removed
+	 *
+	 * @return <tt>true</tt> if the edge has been successfully removed */
+	public boolean removeEdge(E e);
+
+	/** Removes a vertex from this graph.
+	 *
+	 * @param v vertex to be removed
+	 *
+	 * @return <tt>true</tt> if the vertex has been successfully removed */
+	public boolean removeVertex(V v);
 
 	/** Returns the number of edges in this graph.
 	 *
 	 * @return the number of edges in this graph */
 	public int sizeOfEdges();
-
+	
 	/** Returns the number of vertices in this graph.
 	 *
 	 * @return the number of vertices in this graph */

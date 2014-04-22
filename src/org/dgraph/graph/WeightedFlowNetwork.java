@@ -1,9 +1,10 @@
 package org.dgraph.graph;
 
-import org.dgraph.graph.edge.FlowEdge;
-import org.dgraph.graph.edge.WeightedEdge;
-
-public interface WeightedFlowNetwork<V, E extends WeightedEdge<V, W> & FlowEdge<V>, W>
+public interface WeightedFlowNetwork<V, E extends WeightedFlowNetwork.WeightedFlowEdge<V, W>, W>
 		extends WeightedGraph<V, E, W>, FlowNetwork<V, E> {
+
+	public interface WeightedFlowEdge<V, W> extends
+			WeightedGraph.WeightedEdge<V, W>, FlowNetwork.FlowEdge<V> {
+	}
 
 }

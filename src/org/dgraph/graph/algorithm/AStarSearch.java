@@ -8,11 +8,11 @@ import java.util.function.BiFunction;
 import org.dgraph.collections.FibonacciHeap;
 import org.dgraph.collections.Tuple;
 import org.dgraph.graph.Graph;
-import org.dgraph.graph.edge.WeightedEdge;
+import org.dgraph.graph.WeightedGraph;
 
 public class AStarSearch {
 
-	public static <V, E extends WeightedEdge<V, W>, W> List<Tuple<V, Double>> findShortestPath(
+	public static <V, E extends WeightedGraph.WeightedEdge<V, W>, W> List<Tuple<V, Double>> findShortestPath(
 			Graph<V, E> graph, V source, V target, BiFunction<V, V, Double> heuristic) {
 		HashMap<V, Tuple<V, Double>> info = new HashMap<>();
 		FibonacciHeap<V> priorityQueue = new FibonacciHeap<>();

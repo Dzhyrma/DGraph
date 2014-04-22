@@ -6,11 +6,11 @@ import java.util.Set;
 import org.dgraph.collections.FibonacciHeap;
 import org.dgraph.collections.Tuple;
 import org.dgraph.graph.Graph;
-import org.dgraph.graph.edge.WeightedEdge;
+import org.dgraph.graph.WeightedGraph;
 
 public class Johnson {
 
-	public static <V, E extends WeightedEdge<V, W>, W> HashMap<V, HashMap<V, Tuple<V, Double>>> findAllShortestPaths(Graph<V, E> graph) {
+	public static <V, E extends WeightedGraph.WeightedEdge<V, W>, W> HashMap<V, HashMap<V, Tuple<V, Double>>> findAllShortestPaths(Graph<V, E> graph) {
 		HashMap<V, Double> h = new HashMap<>();
 		Set<E> edges = graph.getAllEdges();
 		Set<V> vertices = graph.getAllVertices();

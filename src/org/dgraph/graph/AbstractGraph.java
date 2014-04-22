@@ -2,21 +2,50 @@ package org.dgraph.graph;
 
 import java.io.Serializable;
 import java.util.*;
-
-import org.dgraph.graph.edge.Edge;
-
 import java.util.function.BiFunction;
+import java.util.function.Predicate;
 
 /** Main abstract implementation for all graphs.
-*
-* @param <V> type for vertices
-* @param <E> type for edges. Should implement
-*            <code>org.dgraph.edge.Edge&lt;V&gt;</code> interface
-*
-* @author Andrii Dzhyrma
-* @since April 21, 2014 */
-public abstract class AbstractGraph<V, E extends Edge<V>> implements Graph<V, E>,
-		Serializable {
+ *
+ * @param <V> type for vertices
+ * @param <E> type for edges. Should extend
+*            {@link org.dgraph.graph.AbstractGraph.AbstractEdge AbstractEdge&lt;V&gt;} abstract class
+ *
+ * @author Andrii Dzhyrma
+ * @since April 21, 2014 */
+public abstract class AbstractGraph<V, E extends AbstractGraph.AbstractEdge<V>>
+		implements Graph<V, E>, Serializable {
+
+	public static abstract class AbstractEdge<V> implements Graph.Edge<V> {
+
+		private static final String TO_STRING_FORMAT = "[(%s) -> (%s)]";
+
+		protected V source;
+		protected V target;
+
+		public AbstractEdge(V source, V target) {
+			Objects.requireNonNull(source);
+			Objects.requireNonNull(target);
+			this.source = source;
+			this.target = target;
+		}
+
+		@Override
+		public V getSource() {
+			return source;
+		}
+
+		@Override
+		public V getTarget() {
+			return target;
+		}
+
+		@Override
+		public String toString() {
+			return String.format(TO_STRING_FORMAT, source, target);
+		}
+
+	}
 
 	final class EdgeMap extends HashMap<V, SetExtension<E>> {
 
@@ -297,6 +326,23 @@ public abstract class AbstractGraph<V, E extends Edge<V>> implements Graph<V, E>
 			for (Iterator<?> i = c.iterator(); i.hasNext();)
 				modified |= remove(i.next());
 			return modified;
+		}
+
+		@Override
+		public boolean removeIf(Predicate<? super T> filter) {
+			Objects.requireNonNull(filter);
+			boolean removed = false;
+			final Iterator<T> each = iterator();
+			while (each.hasNext()) {
+				T next = each.next();
+				if (filter.test(next)) {
+					removeFromOthers(next);
+					removed = true;
+				}
+			}
+			if (removed ^ super.removeIf(filter))
+				throw new ConcurrentModificationException();
+			return removed;
 		}
 
 		@Override

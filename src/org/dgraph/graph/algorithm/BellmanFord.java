@@ -5,7 +5,7 @@ import java.util.Set;
 
 import org.dgraph.collections.Tuple;
 import org.dgraph.graph.Graph;
-import org.dgraph.graph.edge.WeightedEdge;
+import org.dgraph.graph.WeightedGraph;
 
 public class BellmanFord {
 
@@ -28,7 +28,7 @@ public class BellmanFord {
 	 *         second parameter is a distance from the source vertex to the
 	 *         current one (Double.POSITIVE_INFINITY if there is no path from
 	 *         source) */
-	public static <V, E extends WeightedEdge<V, W>, W> HashMap<V, Tuple<V, Double>> findAllShortestPaths(Graph<V, E> graph, V source, boolean checkNegativeCycles) {
+	public static <V, E extends WeightedGraph.WeightedEdge<V, W>, W> HashMap<V, Tuple<V, Double>> findAllShortestPaths(Graph<V, E> graph, V source, boolean checkNegativeCycles) {
 		int vSize = graph.sizeOfVertices();
 		HashMap<V, Tuple<V, Double>> info = new HashMap<>(vSize);
 		info.put(source, new Tuple<V, Double>(null, Double.valueOf(0d)));
