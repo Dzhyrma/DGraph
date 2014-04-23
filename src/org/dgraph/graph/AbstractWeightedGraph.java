@@ -39,8 +39,8 @@ public abstract class AbstractWeightedGraph<V, E extends AbstractWeightedGraph.A
 
 	private static final long serialVersionUID = -3197139092483967228L;
 
-	public AbstractWeightedGraph(BiFunction<V, V, E> edgeFactory) {
-		super(edgeFactory);
+	public AbstractWeightedGraph(BiFunction<V, V, E> edgeFactory, boolean withLoops) {
+		super(edgeFactory, withLoops);
 	}
 
 	@Override

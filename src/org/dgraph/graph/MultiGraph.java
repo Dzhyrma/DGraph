@@ -31,12 +31,17 @@ public class MultiGraph<V, E extends MultiGraph.MultiEdge<V>> extends
 
 	private static final long serialVersionUID = 396772382551003763L;
 
-	/** Creates an instance of a new multigraph. */
+	/** Creates an instance of a new multigraph without loops. */
 	public MultiGraph() {
-		super(null);
+		super(null, false);
+	}
+	
+	/** Creates an instance of a new multigraph. */
+	public MultiGraph(boolean withLoops) {
+		super(null, withLoops);
 	}
 
-	/** Creates an instance of a new multigraph with edge factory. The edge
+	/** Creates an instance of a new multigraph without loops and with edge factory. The edge
 	 * factory will be used in the {@link #addEdge(Object, Object) addEdge(V v1, V
 	 * v2)} method. Using another constructor, this method will throw
 	 * {@link UnsupportedOperationException}.
@@ -44,6 +49,17 @@ public class MultiGraph<V, E extends MultiGraph.MultiEdge<V>> extends
 	 * @param edgeFactory the edge factory to create edge by given source and
 	 *          target vertices */
 	public MultiGraph(BiFunction<V, V, E> edgeFactory) {
-		super(edgeFactory);
+		super(edgeFactory, false);
+	}
+	
+	/** Creates an instance of a new multigraph with edge factory. The edge
+	 * factory will be used in the {@link #addEdge(Object, Object) addEdge(V v1, V
+	 * v2)} method. Using another constructor, this method will throw
+	 * {@link UnsupportedOperationException}.
+	 * 
+	 * @param edgeFactory the edge factory to create edge by given source and
+	 *          target vertices */
+	public MultiGraph(BiFunction<V, V, E> edgeFactory, boolean withLoops) {
+		super(edgeFactory, withLoops);
 	}
 }

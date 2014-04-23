@@ -6,7 +6,8 @@ import java.util.function.BiFunction;
  *
  * @param <V> type for vertices
  * @param <E> type for edges. Should extend
-*            {@link org.dgraph.graph.SimpleGraph.SimpleEdge SimpleEdge&lt;V&gt;} implementation
+ *          {@link org.dgraph.graph.SimpleGraph.SimpleEdge SimpleEdge&lt;V&gt;}
+ *          implementation
  *
  * @author Andrii Dzhyrma
  * @since April 21, 2014 */
@@ -43,19 +44,35 @@ public class SimpleGraph<V, E extends SimpleGraph.SimpleEdge<V>> extends
 
 	private static final long serialVersionUID = 396772382551003763L;
 
-	/** Creates an instance of a new simple graph. */
+	/** Creates an instance of a new simple graph without loops. */
 	public SimpleGraph() {
-		super(null);
+		super(null, false);
 	}
 
-	/** Creates an instance of a new simple graph with edge factory. The edge
-	 * factory will be used in the {@link #addEdge(Object, Object) addEdge(V v1, V
-	 * v2)} method. Using another constructor, this method will throw
-	 * {@link UnsupportedOperationException}.
+	/** Creates an instance of a new simple graph. */
+	public SimpleGraph(boolean withLoops) {
+		super(null, withLoops);
+	}
+
+	/** Creates an instance of a new simple graph without loops and with edge
+	 * factory. The edge factory will be used in the
+	 * {@link #addEdge(Object, Object) addEdge(V v1, V v2)} method. Using another
+	 * constructor, this method will throw {@link UnsupportedOperationException}.
 	 * 
 	 * @param edgeFactory the edge factory to create edge by given source and
 	 *          target vertices */
 	public SimpleGraph(BiFunction<V, V, E> edgeFactory) {
-		super(edgeFactory);
+		super(edgeFactory, false);
+	}
+
+	/** Creates an instance of a new simple with edge factory. The edge factory
+	 * will be used in the {@link #addEdge(Object, Object) addEdge(V v1, V v2)}
+	 * method. Using another constructor, this method will throw
+	 * {@link UnsupportedOperationException}.
+	 * 
+	 * @param edgeFactory the edge factory to create edge by given source and
+	 *          target vertices */
+	public SimpleGraph(BiFunction<V, V, E> edgeFactory, boolean withLoops) {
+		super(edgeFactory, withLoops);
 	}
 }

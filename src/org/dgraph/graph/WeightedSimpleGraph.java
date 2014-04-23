@@ -54,9 +54,26 @@ public class WeightedSimpleGraph<V, E extends WeightedSimpleGraph.WeightedSimple
 	
 	private static final long serialVersionUID = 5337806344935553524L;
 
-	/** Creates an instance of a new simple weighted graph. */
+	/** Creates an instance of a new simple weighted graph without loops. */
 	public WeightedSimpleGraph() {
-		super(null);
+		super(null, false);
+	}
+	
+	/** Creates an instance of a new simple weighted graph. */
+	public WeightedSimpleGraph(boolean withLoops) {
+		super(null, withLoops);
+	}
+
+	/** Creates an instance of a new simple weighted graph without loops and with edge factory. The edge
+	 * factory will be used in the {@link #addEdge(Object, Object) addEdge(V v1, V
+	 * v2)} and {@link #addEdge(Object, Object, Object) addEdge(V v1, V
+	 * v2, W w)}  methods. Using another constructor, these methods will throw
+	 * {@link UnsupportedOperationException}.
+	 * 
+	 * @param edgeFactory the edge factory to create edge by given source and
+	 *          target vertices */
+	public WeightedSimpleGraph(BiFunction<V, V, E> edgeFactory) {
+		super(edgeFactory, false);
 	}
 
 	/** Creates an instance of a new simple weighted graph with edge factory. The edge
@@ -67,8 +84,7 @@ public class WeightedSimpleGraph<V, E extends WeightedSimpleGraph.WeightedSimple
 	 * 
 	 * @param edgeFactory the edge factory to create edge by given source and
 	 *          target vertices */
-	public WeightedSimpleGraph(BiFunction<V, V, E> edgeFactory) {
-		super(edgeFactory);
+	public WeightedSimpleGraph(BiFunction<V, V, E> edgeFactory, boolean withLoops) {
+		super(edgeFactory, withLoops);
 	}
-
 }
