@@ -5,48 +5,19 @@ import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
-/** Main abstract implementation for all graphs.
+import org.dgraph.graph.edge.Edge;
+
+/** Main abstract implementation for all directed graphs.
  *
  * @param <V> type for vertices
  * @param <E> type for edges. Should extend
- *          {@link org.dgraph.graph.AbstractGraph.AbstractEdge
+ *          {@link org.dgraph.graph.edge.AbstractEdge
  *          AbstractEdge&lt;V&gt;} abstract class
  *
  * @author Andrii Dzhyrma
  * @since April 21, 2014 */
-public abstract class AbstractGraph<V, E extends AbstractGraph.AbstractEdge<V>>
+public abstract class AbstractDirectedGraph<V, E extends Edge<V>>
 		implements Graph<V, E>, Serializable {
-
-	public static abstract class AbstractEdge<V> implements Graph.Edge<V> {
-
-		private static final String TO_STRING_FORMAT = "[(%s) -> (%s)]";
-
-		protected V source;
-		protected V target;
-
-		public AbstractEdge(V source, V target) {
-			Objects.requireNonNull(source);
-			Objects.requireNonNull(target);
-			this.source = source;
-			this.target = target;
-		}
-
-		@Override
-		public V getSource() {
-			return source;
-		}
-
-		@Override
-		public V getTarget() {
-			return target;
-		}
-
-		@Override
-		public String toString() {
-			return String.format(TO_STRING_FORMAT, source, target);
-		}
-
-	}
 
 	final class EdgeMap extends HashMap<V, SetExtension<E>> {
 
@@ -67,25 +38,27 @@ public abstract class AbstractGraph<V, E extends AbstractGraph.AbstractEdge<V>>
 
 		@Override
 		public boolean add(E e) {
-			Objects.requireNonNull(e.source);
-			Objects.requireNonNull(e.target);
-			return (!withLoops || !e.source.equals(e.target)) && super.add(e);
+			V source = Objects.requireNonNull(e.getSource());
+			V target = Objects.requireNonNull(e.getTarget());
+			return (!withLoops || !source.equals(target)) && super.add(e);
 		}
 
 		@Override
 		public boolean addToOthers(E e) {
-			if (vertices.superAdd(e.source))
-				vertices.addToOthers(e.source);
-			if (vertices.superAdd(e.target))
-				vertices.addToOthers(e.target);
-			EdgeMap map = graph.get(e.source);
-			SetExtension<E> set = map.get(e.target);
+			V source = e.getSource();
+			V target = e.getTarget();
+			if (vertices.superAdd(source))
+				vertices.addToOthers(source);
+			if (vertices.superAdd(target))
+				vertices.addToOthers(target);
+			EdgeMap map = graph.get(source);
+			SetExtension<E> set = map.get(target);
 			if (set == null) {
-				set = new EdgeSetSpecific(e.source, e.target);
-				map.put(e.target, set);
+				set = new EdgeSetSpecific(source, target);
+				map.put(target, set);
 			}
 			return set.superAdd(e) && map.edges.superAdd(e)
-					&& incomingEdges.get(e.target).superAdd(e);
+					&& incomingEdges.get(target).superAdd(e);
 		}
 
 		@Override
@@ -96,9 +69,10 @@ public abstract class AbstractGraph<V, E extends AbstractGraph.AbstractEdge<V>>
 		@Override
 		boolean removeFromOthers(Object o) {
 			E e = (E) o;
-			EdgeMap map = graph.get(e.source);
-			return map.get(e.target).superRemove(o) && map.edges.superRemove(o)
-					&& incomingEdges.get(e.target).superRemove(o);
+			V target = e.getTarget();
+			EdgeMap map = graph.get(e.getSource());
+			return map.get(target).superRemove(o) && map.edges.superRemove(o)
+					&& incomingEdges.get(target).superRemove(o);
 		}
 	}
 
@@ -113,21 +87,22 @@ public abstract class AbstractGraph<V, E extends AbstractGraph.AbstractEdge<V>>
 
 		@Override
 		public boolean add(E e) {
-			Objects.requireNonNull(e.source);
-			return Objects.requireNonNull(e.target).equals(target)
-					&& (!withLoops || !e.source.equals(e.target)) && super.add(e);
+			V source = Objects.requireNonNull(e.getSource());
+			return Objects.requireNonNull(e.getTarget()).equals(target)
+					&& (!withLoops || !source.equals(target)) && super.add(e);
 		}
 
 		@Override
 		public boolean addToOthers(E e) {
-			if (vertices.superAdd(e.source))
-				vertices.addToOthers(e.source);
+			V source = e.getSource();
+			if (vertices.superAdd(source))
+				vertices.addToOthers(source);
 			if (vertices.superAdd(target))
 				vertices.addToOthers(target);
-			EdgeMap map = graph.get(e.source);
+			EdgeMap map = graph.get(source);
 			SetExtension<E> set = map.get(target);
 			if (set == null) {
-				set = new EdgeSetSpecific(e.source, target);
+				set = new EdgeSetSpecific(source, target);
 				map.put(target, set);
 			}
 			return set.superAdd(e) && map.edges.superAdd(e) && edges.superAdd(e);
@@ -136,7 +111,7 @@ public abstract class AbstractGraph<V, E extends AbstractGraph.AbstractEdge<V>>
 		@Override
 		public boolean removeFromOthers(Object o) {
 			E e = (E) o;
-			EdgeMap map = graph.get(e.source);
+			EdgeMap map = graph.get(e.getSource());
 			return edges.superRemove(o) && map.get(target).superRemove(o)
 					&& map.edges.superRemove(o);
 		}
@@ -158,34 +133,36 @@ public abstract class AbstractGraph<V, E extends AbstractGraph.AbstractEdge<V>>
 
 		@Override
 		public boolean add(E e) {
-			Objects.requireNonNull(e.target);
-			return Objects.requireNonNull(e.source).equals(source)
-					&& (!withLoops || !e.source.equals(e.target)) && super.add(e);
+			V target = Objects.requireNonNull(e.getTarget());
+			return Objects.requireNonNull(e.getSource()).equals(source)
+					&& (!withLoops || !source.equals(target)) && super.add(e);
 		}
 
 		@Override
 		public boolean addToOthers(E e) {
+			V target = e.getTarget();
 			if (vertices.superAdd(source))
 				vertices.addToOthers(source);
-			if (vertices.superAdd(e.target))
-				vertices.addToOthers(e.target);
+			if (vertices.superAdd(target))
+				vertices.addToOthers(target);
 			EdgeMap map = graph.get(source);
-			SetExtension<E> set = map.get(e.target);
+			SetExtension<E> set = map.get(target);
 			if (set == null) {
-				set = new EdgeSetSpecific(source, e.target);
-				map.put(e.target, set);
+				set = new EdgeSetSpecific(source, target);
+				map.put(target, set);
 			}
 			return set.superAdd(e) && edges.superAdd(e)
-					&& incomingEdges.get(e.target).superAdd(e);
+					&& incomingEdges.get(target).superAdd(e);
 		}
 
 		@Override
 		public boolean removeFromOthers(Object o) {
 			E e = (E) o;
+			V target = e.getTarget();
 			EdgeMap map = graph.get(source);
-			SetExtension<E> set = map.get(e.target);
+			SetExtension<E> set = map.get(target);
 			return edges.superRemove(o) && set.superRemove(o)
-					&& incomingEdges.get(e.target).superRemove(o);
+					&& incomingEdges.get(target).superRemove(o);
 		}
 
 		@Override
@@ -207,10 +184,9 @@ public abstract class AbstractGraph<V, E extends AbstractGraph.AbstractEdge<V>>
 
 		@Override
 		public boolean add(E e) {
-			return Objects.requireNonNull(e.source).equals(source)
-					&& Objects.requireNonNull(e.target).equals(target)
-					&& (!withLoops || !e.source.equals(e.target))
-					&& super.add(e);
+			return Objects.requireNonNull(e.getSource()).equals(source)
+					&& Objects.requireNonNull(e.getTarget()).equals(target)
+					&& (!withLoops || !source.equals(target)) && super.add(e);
 		}
 
 		@Override
@@ -442,7 +418,7 @@ public abstract class AbstractGraph<V, E extends AbstractGraph.AbstractEdge<V>>
 
 	protected final BiFunction<V, V, E> edgeFactory;
 
-	public AbstractGraph(BiFunction<V, V, E> edgeFactory, boolean withLoops) {
+	public AbstractDirectedGraph(BiFunction<V, V, E> edgeFactory, boolean withLoops) {
 		this.edgeFactory = edgeFactory;
 		this.withLoops = withLoops;
 	}
@@ -526,6 +502,18 @@ public abstract class AbstractGraph<V, E extends AbstractGraph.AbstractEdge<V>>
 	@Override
 	public Set<E> getEdgesToTarget(V v) {
 		return incomingEdges.get(v);
+	}
+
+	@Override
+	public int getInDegree(V v) {
+		SetExtension<E> set = incomingEdges.get(v);
+		return set == null ? -1 : set.size();
+	}
+
+	@Override
+	public int getOutDegree(V v) {
+		EdgeMap map = graph.get(v);
+		return map == null ? -1 : map.edges.size();
 	}
 
 	@Override

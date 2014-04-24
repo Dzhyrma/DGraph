@@ -5,10 +5,11 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.dgraph.graph.Graph;
+import org.dgraph.graph.edge.Edge;
 
 public class BreadthFirstSearch {
 
-	public static <V, E extends Graph.Edge<V>> List<V> findPath(Graph<V, E> graph, V source, V target) {
+	public static <V, E extends Edge<V>> List<V> findPath(Graph<V, E> graph, V source, V target) {
 		HashMap<V, V> previous = new HashMap<>();
 		LinkedList<V> queue = new LinkedList<>();
 		previous.put(source, null);

@@ -7,7 +7,7 @@ import org.dgraph.collections.FibonacciHeap;
 import org.dgraph.collections.FibonacciHeap.Entry;
 import org.dgraph.collections.Tuple;
 import org.dgraph.graph.Graph;
-import org.dgraph.graph.WeightedFlowNetwork;
+import org.dgraph.graph.edge.WeightedFlowEdge;
 
 public class MinCostMaxFlow {
 
@@ -22,7 +22,7 @@ public class MinCostMaxFlow {
 			MinCostMaxFlow.error = error;
 	}
 
-	public static <V, E extends WeightedFlowNetwork.WeightedFlowEdge<V, W>, W> Tuple<Double, Double> getMaximumFlowWithMinCost(Graph<V, E> network, V source, V sink,
+	public static <V, E extends WeightedFlowEdge<V, W>, W> Tuple<Double, Double> getMaximumFlowWithMinCost(Graph<V, E> network, V source, V sink,
 	                boolean resetFlowOnStart) {
 		int vSize = network.sizeOfVertices();
 		HashMap<V, HashSet<E>> reverseEdges = new HashMap<>(vSize);

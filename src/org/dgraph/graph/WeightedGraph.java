@@ -1,15 +1,9 @@
 package org.dgraph.graph;
 
-public interface WeightedGraph<V, E extends WeightedGraph.WeightedEdge<V, W>, W> extends
-		Graph<V, E> {
+import org.dgraph.graph.edge.WeightedEdge;
 
-	public interface WeightedEdge<V, W> extends Graph.Edge<V> {
-		
-		public double getWeight();
-		
-		public void setWeight(W weight);
-		
-	}
+public interface WeightedGraph<V, E extends WeightedEdge<V, W>, W> extends
+		Graph<V, E> {
 	
 	public boolean addEdge(V v1, V v2, W w);
 

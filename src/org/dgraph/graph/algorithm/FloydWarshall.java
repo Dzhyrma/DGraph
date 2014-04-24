@@ -6,10 +6,10 @@ import java.util.Set;
 
 import org.dgraph.collections.Tuple;
 import org.dgraph.graph.Graph;
-import org.dgraph.graph.WeightedGraph;
+import org.dgraph.graph.edge.WeightedEdge;
 
 public class FloydWarshall {
-	public static <V, E extends WeightedGraph.WeightedEdge<V, W>, W> HashMap<V, HashMap<V, Tuple<V, Double>>> findAllShortestPaths(
+	public static <V, E extends WeightedEdge<V, W>, W> HashMap<V, HashMap<V, Tuple<V, Double>>> findAllShortestPaths(
 			Graph<V, E> graph) {
 		int N = graph.sizeOfVertices();
 		ArrayList<V> vertices = new ArrayList<>(N);

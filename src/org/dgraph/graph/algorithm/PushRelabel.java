@@ -3,7 +3,8 @@ package org.dgraph.graph.algorithm;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import org.dgraph.graph.FlowNetwork;
+import org.dgraph.graph.Graph;
+import org.dgraph.graph.edge.FlowEdge;
 
 public class PushRelabel {
 
@@ -18,8 +19,8 @@ public class PushRelabel {
 			PushRelabel.error = error;
 	}
 
-	public static <V, E extends FlowNetwork.FlowEdge<V>> double getMaximumFlow(
-			FlowNetwork<V, E> network, V source, V sink, boolean resetFlowOnStart) {
+	public static <V, E extends FlowEdge<V>> double getMaximumFlow(
+			Graph<V, E> network, V source, V sink, boolean resetFlowOnStart) {
 		int vSize = network.sizeOfVertices();
 		HashMap<V, Integer> label = new HashMap<>(vSize);
 		HashMap<V, Double> excess = new HashMap<>(vSize);
