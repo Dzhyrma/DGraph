@@ -12,7 +12,7 @@ import org.dgraph.graph.edge.Edge;
  *          {@link org.dgraph.graph.edge.Edge Edge&lt;V&gt;} interface
  *
  * @author Andrii Dzhyrma
- * @since April 17, 2014 */
+ * @since 0.1 */
 public interface Graph<V, E extends Edge<V>> {
 
 	/** Adds a new edge to the graph.
@@ -22,7 +22,7 @@ public interface Graph<V, E extends Edge<V>> {
 	 * will be added to the graph automatically.
 	 * </p>
 	 *
-	 * @param e edge to be added to the graph.
+	 * @param e edge to be added to the graph
 	 * @return <tt>true</tt> if this graph did not already contain the specified
 	 *         edge
 	 *
@@ -49,7 +49,7 @@ public interface Graph<V, E extends Edge<V>> {
 
 	/** Adds a new vertex to the graph.
 	 *
-	 * @param v vertex to be added to the graph.
+	 * @param v vertex to be added to the graph
 	 * @return <tt>true</tt> if this graph did not already contain the specified
 	 *         vertex
 	 *
@@ -120,11 +120,15 @@ public interface Graph<V, E extends Edge<V>> {
 
 	/** Returns the number of edges with {@code v} as their initial vertex.
 	 * 
+	 * @param v initial vertex for getting the "out" degree
+	 * 
 	 * @return the number of edges with {@code v} as their initial vertex. Returns
 	 *         -1, if the graph doesn't contain the specified vertex. */
 	public int getOutDegree(V v);
 
 	/** Returns the number of edges with {@code v} as their terminal vertex.
+	 * 
+	 * @param v terminal vertex for getting the "in" degree
 	 * 
 	 * @return the number of edges with {@code v} as their terminal vertex. Returns
 	 *         -1, if the graph doesn't contain the specified vertex. */

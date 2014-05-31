@@ -18,13 +18,19 @@ public class BellmanFord {
 	 * Bellman–Ford runs in O(|V|*|E|) time, where |V| and |E| are the number of
 	 * vertices and edges respectively.
 	 * 
+	 * @param <V> type for vertices
+	 * @param <E> type for edges. Should implement
+	 *          {@link org.dgraph.graph.edge.WeightedEdge WeightedEdge&lt;V,
+	 *          W&gt;} interface
+	 * @param <W> type for weights
 	 * @param graph the weighted graph
 	 * @param source the source vertex
-	 * @param checkNegativeCycles if true, method will throw IllegalArgumentException if a negative cycle exists
+	 * @param checkNegativeCycles if true, method will throw
+	 *          IllegalArgumentException if a negative cycle exists
 	 * @return Hash map with all vertices from a given graph as keys, and tuples
 	 *         with two parameters as values. First parameter in the tuple
-	 *         represents predecessor of the vertex in the key (null, when it is
-	 *         a source, or there is no path from path to current vertex), and
+	 *         represents predecessor of the vertex in the key (null, when it is a
+	 *         source, or there is no path from path to current vertex), and
 	 *         second parameter is a distance from the source vertex to the
 	 *         current one (Double.POSITIVE_INFINITY if there is no path from
 	 *         source) */
@@ -48,7 +54,7 @@ public class BellmanFord {
 						t = info.get(trg);
 					} else {
 						t = new Tuple<V, Double>();
-						info.put(trg, t); 
+						info.put(trg, t);
 					}
 					t.setItem1(src);
 					t.setItem2(Double.valueOf(distance));

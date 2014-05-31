@@ -12,7 +12,7 @@ import org.dgraph.graph.edge.WeightedEdge;
  *          interface
  *
  * @author Andrii Dzhyrma
- * @since April 21, 2014 */
+ * @since 0.1 */
 public abstract class AbstractWeightedDirectedGraph<V, E extends WeightedEdge<V, W>, W>
 		extends DirectedGraph<V, E> implements WeightedGraph<V, E, W> {
 

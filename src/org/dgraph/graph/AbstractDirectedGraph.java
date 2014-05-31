@@ -15,7 +15,7 @@ import org.dgraph.graph.edge.Edge;
  *          AbstractEdge&lt;V&gt;} abstract class
  *
  * @author Andrii Dzhyrma
- * @since April 21, 2014 */
+ * @since 0.1 */
 public abstract class AbstractDirectedGraph<V, E extends Edge<V>>
 		implements Graph<V, E>, Serializable {
 

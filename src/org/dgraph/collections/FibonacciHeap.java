@@ -176,6 +176,7 @@ public final class FibonacciHeap<T> {
 	 * continue to use those heaps, but be aware that they will be empty after
 	 * this call completes.
 	 * 
+	 * @param <T> type of the elements in heaps.
 	 * @param one The first Fibonacci heap to merge.
 	 * @param two The second Fibonacci heap to merge.
 	 * @return A new FibonacciHeap containing all of the elements of both heaps. */

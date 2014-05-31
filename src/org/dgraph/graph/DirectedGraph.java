@@ -12,9 +12,8 @@ import org.dgraph.graph.edge.Edge;
  *          implementation
  *
  * @author Andrii Dzhyrma
- * @since April 21, 2014 */
-public class DirectedGraph<V, E extends Edge<V>> extends
-		AbstractDirectedGraph<V, E> {
+ * @since 0.1 */
+public class DirectedGraph<V, E extends Edge<V>> extends AbstractDirectedGraph<V, E> {
 
 	private static final long serialVersionUID = 396772382551003763L;
 
@@ -23,15 +22,18 @@ public class DirectedGraph<V, E extends Edge<V>> extends
 		super(null, false);
 	}
 
-	/** Creates an instance of a new directed graph. */
+	/** Creates an instance of a new directed graph.
+	 * 
+	 * @param withLoops specifies whether the graph can contain loops or not */
 	public DirectedGraph(boolean withLoops) {
 		super(null, withLoops);
 	}
 
 	/** Creates an instance of a new directed graph without loops and with edge
 	 * factory. The edge factory will be used in the
-	 * {@link #addEdge(Object, Object) addEdge(V v1, V v2)} method. Using another
-	 * constructor, this method will throw {@link UnsupportedOperationException}.
+	 * {@link #addEdge(Object, Object) addEdge(V v1, V v2)} method. Otherwise, if
+	 * no edge factory is given, this method will throw
+	 * {@link UnsupportedOperationException}.
 	 * 
 	 * @param edgeFactory the edge factory to create edge by given source and
 	 *          target vertices */
@@ -39,13 +41,14 @@ public class DirectedGraph<V, E extends Edge<V>> extends
 		super(edgeFactory, false);
 	}
 
-	/** Creates an instance of a new directed graph with edge factory. The edge factory
-	 * will be used in the {@link #addEdge(Object, Object) addEdge(V v1, V v2)}
-	 * method. Using another constructor, this method will throw
+	/** Creates an instance of a new directed graph with edge factory. The edge
+	 * factory will be used in the {@link #addEdge(Object, Object) addEdge(V v1, V
+	 * v2)} method. Otherwise, if no edge factory is given, this method will throw
 	 * {@link UnsupportedOperationException}.
 	 * 
 	 * @param edgeFactory the edge factory to create edge by given source and
-	 *          target vertices */
+	 *          target vertices
+	 * @param withLoops specifies whether the graph can contain loops or not */
 	public DirectedGraph(BiFunction<V, V, E> edgeFactory, boolean withLoops) {
 		super(edgeFactory, withLoops);
 	}
