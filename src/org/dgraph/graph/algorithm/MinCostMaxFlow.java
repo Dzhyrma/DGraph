@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import org.dgraph.collections.FibonacciHeap;
-import org.dgraph.collections.FibonacciHeap.Entry;
+import org.dgraph.collections.FibonacciHeap.Node;
 import org.dgraph.collections.Tuple;
 import org.dgraph.graph.Graph;
 import org.dgraph.graph.edge.FlowEdge;
@@ -12,7 +12,7 @@ import org.dgraph.graph.edge.WeightedEdge;
 
 public class MinCostMaxFlow {
 
-	private static double error = 0.0000000001;
+	private static double error = 1e-10;
 
 	public static double getDoubleError() {
 		return error;
@@ -26,11 +26,11 @@ public class MinCostMaxFlow {
 	public static <V, E extends WeightedEdge<V, W> & FlowEdge<V>, W> Tuple<Double, Double> getMaximumFlowWithMinCost(Graph<V, E> network, V source, V sink,
 	                boolean resetFlowOnStart) {
 		int vSize = network.sizeOfVertices();
+		HashMap<V, Node<V>> heapNodes = new HashMap<>(vSize);
 		HashMap<V, HashSet<E>> reverseEdges = new HashMap<>(vSize);
 		HashMap<V, E> previousEdge = new HashMap<>(vSize);
 		HashMap<V, Double> distance = new HashMap<>(vSize);
 		HashMap<V, Double> currentFlow = new HashMap<>(vSize);
-		HashMap<V, Double> priority = new HashMap<>(vSize);
 
 		boolean negativeCosts = false;
 		for (E e : network.getAllEdges()) {
@@ -63,28 +63,25 @@ public class MinCostMaxFlow {
 		double flow = 0;
 		double flowCost = 0;
 		while (flow < maxFlow) {
-			FibonacciHeap<V> priorityQueue = new FibonacciHeap<>();
-			priorityQueue.enqueue(source, 0d);
-			for (V v : network.getAllVertices()) {
-				priority.put(v, Double.POSITIVE_INFINITY);
-			}
-			priority.put(source, 0d);
-			while (!priorityQueue.isEmpty()) {
-				Entry<V> entry = priorityQueue.dequeueMin();
-				V u = entry.getValue();
-				Double uPiority = priority.get(u);
-				if (uPiority.isInfinite() || Math.abs(entry.getPriority() - uPiority.doubleValue()) > error)
-					continue;
+			FibonacciHeap<V> heap = new FibonacciHeap<>();
+			heapNodes.clear();
+			heapNodes.put(source,heap.enqueue(source, 0d));
+			while (!heap.isEmpty()) {
+				Node<V> cur = heap.dequeueMin();
+				V u = cur.getValue();
+				double uDist = distance.get(u).doubleValue();
 				for (E e : network.getEdgesFromSource(u)) {
 					V v = e.getTarget();
-					double uDist = distance.get(u).doubleValue();
 					double vDist = distance.get(v).doubleValue();
 					if (Double.isInfinite(uDist) || Double.isInfinite(vDist) || e.getCapacity() < e.getFlow() - error)
 						continue;
-					double newPriority = entry.getPriority() + e.getWeight() + distance.get(u).doubleValue() - distance.get(v).doubleValue();
-					if (priority.get(v).doubleValue() > newPriority + error) {
-						priority.put(v, Double.valueOf(newPriority));
-						priorityQueue.enqueue(v, newPriority);
+					double newPriority = cur.getPriority() + e.getWeight() + distance.get(u).doubleValue() - distance.get(v).doubleValue();
+					Node<V> next = heapNodes.get(v);
+					if (next == null || next.getPriority() > newPriority + error) {
+						if (next == null || next.isDequeued())
+							heapNodes.put(v, heap.enqueue(v, newPriority));
+						else
+							heap.decreaseKey(next, newPriority);
 						previousEdge.put(v, e);
 						double curFlow = currentFlow.get(v).doubleValue();
 						currentFlow.put(v, Math.min(curFlow, e.getCapacity() - e.getFlow()));
@@ -92,25 +89,27 @@ public class MinCostMaxFlow {
 				}
 				for (E e : reverseEdges.get(u)) {
 					V v = e.getSource();
-					double uDist = distance.get(u).doubleValue();
 					double vDist = distance.get(v).doubleValue();
 					if (Double.isInfinite(uDist) || Double.isInfinite(vDist) || e.getFlow() < error)
 						continue;
-					double newPriority = entry.getPriority() + e.getWeight() + distance.get(u).doubleValue() - distance.get(v).doubleValue();
-					if (priority.get(v).doubleValue() > newPriority + error) {
-						priority.put(v, Double.valueOf(newPriority));
-						priorityQueue.enqueue(v, newPriority);
+					double newPriority = cur.getPriority() + e.getWeight() + distance.get(u).doubleValue() - distance.get(v).doubleValue();
+					Node<V> next = heapNodes.get(v);
+					if (next == null || next.getPriority() > newPriority + error) {
+						if (next == null || next.isDequeued())
+							heapNodes.put(v, heap.enqueue(v, newPriority));
+						else
+							heap.decreaseKey(next, newPriority);
 						previousEdge.put(v, e);
 						double curFlow = currentFlow.get(v).doubleValue();
 						currentFlow.put(v, Math.min(curFlow, e.getFlow()));
 					}
 				}
 			}
-			if (priority.get(sink).isInfinite())
+			if (heapNodes.get(sink) == null)
 				break;
 			for (V v : network.getAllVertices()) {
 				double vDist = distance.get(v).doubleValue();
-				distance.put(v, Double.valueOf(vDist + priority.get(v).doubleValue()));
+				distance.put(v, Double.valueOf(vDist + heapNodes.get(v).getPriority()));
 			}
 			double deltaFlow = Math.min(currentFlow.get(sink).doubleValue(), maxFlow - flow);
 			flow += deltaFlow;
