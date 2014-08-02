@@ -10,7 +10,7 @@ import java.util.Objects;
  * @since 0.1 */
 public abstract class AbstractWeightedSimpleEdge<V, W> extends SimpleEdge<V> implements WeightedEdge<V, W> {
 
-	private static final String TO_STRING_FORMAT = "[(%s) -{%.2f}-> (%s)]";
+	private static final String TO_STRING_FORMAT = "(%s) -{%.2f}-> (%s)";
 
 	protected W weight;
 

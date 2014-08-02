@@ -10,7 +10,7 @@ import java.util.Objects;
  * @since 0.1 */
 public abstract class AbstractEdge<V> implements Edge<V> {
 
-	private static final String TO_STRING_FORMAT = "[(%s) -> (%s)]";
+	private static final String TO_STRING_FORMAT = "(%s) -> (%s)";
 
 	protected V source;
 	protected V target;

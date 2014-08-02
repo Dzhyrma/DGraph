@@ -2,19 +2,19 @@ package org.dgraph.graph.algorithm;
 
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 
-import org.dgraph.collections.FibonacciHeap;
-import org.dgraph.collections.FibonacciHeap.Node;
-import org.dgraph.collections.Tuple;
 import org.dgraph.graph.Graph;
 import org.dgraph.graph.edge.WeightedEdge;
+import org.dgraph.graph.path.SimpleWeightedPath;
+import org.dgraph.graph.path.WeightedPath;
+import org.dgraph.util.FibonacciHeap;
+import org.dgraph.util.FibonacciHeap.Node;
 
 public class Dijkstra {
 
-	public static <V, E extends WeightedEdge<V, W>, W> List<Tuple<V, Double>> findShortestPath(Graph<V, E> graph, V source, V target) {
+	public static <V, E extends WeightedEdge<V, W>, W> WeightedPath<V, E> findShortestPath(Graph<V, E> graph, V source, V target) {
 		HashMap<V, Node<V>> heapNodes = new HashMap<>(graph.sizeOfVertices());
-		HashMap<V, V> previous = new HashMap<>(graph.sizeOfVertices());
+		HashMap<V, E> previous = new HashMap<>(graph.sizeOfVertices());
 		FibonacciHeap<V> heap = new FibonacciHeap<>();
 		heapNodes.put(source, heap.enqueue(source, 0d));
 		while (!heap.isEmpty()) {
@@ -33,18 +33,20 @@ public class Dijkstra {
 						heapNodes.put(adj, heap.enqueue(adj, newDistance));
 					else
 						heap.decreaseKey(next, newDistance);
-					previous.put(adj, cur.getValue());
+					previous.put(adj, e);
 				}
 			}
 		}
 		if (!heapNodes.containsKey(target))
 			return null;
-		LinkedList<Tuple<V, Double>> result = new LinkedList<>();
+		LinkedList<E> edges = new LinkedList<>();
 		V cur = target;
-		result.push(new Tuple<V, Double>(cur, Double.valueOf(heapNodes.get(cur).getPriority())));
-		while ((cur = previous.get(cur)) != source)
-			result.push(new Tuple<V, Double>(cur, Double.valueOf(heapNodes.get(cur).getPriority())));
-		result.push(new Tuple<V, Double>(source, Double.valueOf(0d)));
-		return result;
+		E curEdge;
+		while (!cur.equals(source)) {
+			curEdge = previous.get(cur);
+			edges.push(curEdge);
+			cur = curEdge.getSource();
+		}
+		return new SimpleWeightedPath<>(source, target, edges);
 	}
 }

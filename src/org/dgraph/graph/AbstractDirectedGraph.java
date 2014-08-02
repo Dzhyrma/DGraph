@@ -410,11 +410,11 @@ public abstract class AbstractDirectedGraph<V, E extends Edge<V>>
 
 	private final Map<V, SetExtension<E>> incomingEdges = new HashMap<>();
 
-	private transient int modCount = 0;
-
 	private final SetExtension<V> vertices = new VertexSet();
 
 	private final boolean withLoops;
+	
+	private transient int modCount = 0;
 
 	protected final BiFunction<V, V, E> edgeFactory;
 
@@ -556,9 +556,6 @@ public abstract class AbstractDirectedGraph<V, E extends Edge<V>>
 
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		for (Iterator<?> i = edges.iterator(); i.hasNext();)
-			sb.append(i.next()).append('\n');
-		return sb.toString();
+		return new StringBuilder("Graph:").append(edges).toString();
 	}
 }

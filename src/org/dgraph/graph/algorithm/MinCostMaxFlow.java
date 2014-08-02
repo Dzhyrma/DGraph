@@ -2,13 +2,15 @@ package org.dgraph.graph.algorithm;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
-import org.dgraph.collections.FibonacciHeap;
-import org.dgraph.collections.FibonacciHeap.Node;
-import org.dgraph.collections.Tuple;
 import org.dgraph.graph.Graph;
 import org.dgraph.graph.edge.FlowEdge;
 import org.dgraph.graph.edge.WeightedEdge;
+import org.dgraph.graph.path.WeightedPath;
+import org.dgraph.util.FibonacciHeap;
+import org.dgraph.util.Tuple;
+import org.dgraph.util.FibonacciHeap.Node;
 
 public class MinCostMaxFlow {
 
@@ -48,9 +50,9 @@ public class MinCostMaxFlow {
 		}
 
 		if (negativeCosts) {
-			HashMap<V, Tuple<V, Double>> dist = BellmanFord.findAllShortestPaths(network, source, false);
+			Map<V, WeightedPath<V, E>> dist = BellmanFord.findAllShortestPaths(network, source, false);
 			for (V v : dist.keySet()) {
-				distance.put(v, dist.get(v).getItem2());
+				distance.put(v, dist.get(v).getDistance());
 				currentFlow.put(v, Double.valueOf(0d));
 			}
 		} else {

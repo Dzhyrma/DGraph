@@ -1,11 +1,17 @@
 package org.dgraph.graph.algorithm;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
-import org.dgraph.collections.Tuple;
 import org.dgraph.graph.Graph;
 import org.dgraph.graph.edge.WeightedEdge;
+import org.dgraph.graph.path.SimpleWeightedPath;
+import org.dgraph.graph.path.WeightedPath;
+import org.dgraph.util.Tuple;
 
 public class BellmanFord {
 
@@ -27,17 +33,13 @@ public class BellmanFord {
 	 * @param source the source vertex
 	 * @param checkNegativeCycles if true, method will throw
 	 *          IllegalArgumentException if a negative cycle exists
-	 * @return Hash map with all vertices from a given graph as keys, and tuples
-	 *         with two parameters as values. First parameter in the tuple
-	 *         represents predecessor of the vertex in the key (null, when it is a
-	 *         source, or there is no path from path to current vertex), and
-	 *         second parameter is a distance from the source vertex to the
-	 *         current one (Double.POSITIVE_INFINITY if there is no path from
-	 *         source) */
-	public static <V, E extends WeightedEdge<V, W>, W> HashMap<V, Tuple<V, Double>> findAllShortestPaths(Graph<V, E> graph, V source, boolean checkNegativeCycles) {
+	 * @return Map with all vertices from a given graph as keys, and paths as
+	 *         values. If there was no single path between two vertices, path will
+	 *         be returning the distance as Double.POSITIVE_INFINITY */
+	public static <V, E extends WeightedEdge<V, ?>> Map<V, WeightedPath<V, E>> findAllShortestPaths(Graph<V, E> graph, V source, boolean checkNegativeCycles) {
 		int vSize = graph.sizeOfVertices();
-		HashMap<V, Tuple<V, Double>> info = new HashMap<>(vSize);
-		info.put(source, new Tuple<V, Double>(null, Double.valueOf(0d)));
+		Map<V, Tuple<E, Double>> info = new HashMap<>(vSize);
+		info.put(source, new Tuple<>(null, Double.valueOf(0d)));
 		Set<E> edges = graph.getAllEdges();
 		for (int i = 2; i < vSize; i++) {// vSize - 1 times
 			boolean hasChanges = false;
@@ -49,14 +51,14 @@ public class BellmanFord {
 				double distance = info.get(src).getItem2().doubleValue() + e.getWeight();
 				boolean hasKey = info.containsKey(trg);
 				if (!hasKey || info.get(trg).getItem2().doubleValue() > distance) {
-					Tuple<V, Double> t;
+					Tuple<E, Double> t;
 					if (hasKey) {
 						t = info.get(trg);
 					} else {
-						t = new Tuple<V, Double>();
+						t = new Tuple<E, Double>();
 						info.put(trg, t);
 					}
-					t.setItem1(src);
+					t.setItem1(e);
 					t.setItem2(Double.valueOf(distance));
 					hasChanges = true;
 				}
@@ -64,17 +66,33 @@ public class BellmanFord {
 			if (!hasChanges)
 				break;
 		}
+		Map<V, WeightedPath<V, E>> result = new HashMap<>();
+		result.put(source, new SimpleWeightedPath<>(source, source, Collections.<E> emptyList()));
 		for (V v : graph.getAllVertices()) {
 			if (!info.containsKey(v))
-				info.put(v, new Tuple<V, Double>(null, Double.POSITIVE_INFINITY));
+				result.put(v, new SimpleWeightedPath<>(source, v, null));
 			else {
 				for (E e : graph.getEdgesFromSource(v)) {
 					V adj = e.getTarget();
 					if (checkNegativeCycles && info.containsKey(adj) && info.get(adj).getItem2().doubleValue() > info.get(v).getItem2().doubleValue() + e.getWeight())
 						throw new IllegalArgumentException("Graph contains a negative-weight cycle");
 				}
+				buildPath(info, result, source, v);
 			}
 		}
-		return info;
+		return result;
+	}
+
+	private static <V, E extends WeightedEdge<V, ?>> void buildPath(Map<V, Tuple<E, Double>> info, Map<V, WeightedPath<V, E>> result, V source, V target) {
+		if (!result.containsKey(target)) {
+			Tuple<E, Double> tuple = info.get(target);
+			E edge = tuple.getItem1();
+			if (!result.containsKey(edge.getSource())) {
+				buildPath(info, result, source, edge.getSource());
+			}
+			List<E> temp = new LinkedList<E>(result.get(edge.getSource()).getEdges());
+			temp.add(edge);
+			result.put(target, new SimpleWeightedPath<>(source, target, temp));
+		}
 	}
 }

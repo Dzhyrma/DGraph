@@ -1,4 +1,4 @@
-package org.dgraph.collections;
+package org.dgraph.util;
 
 import java.util.Objects;
 
