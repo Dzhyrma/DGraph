@@ -7,14 +7,14 @@ package org.dzhyrma.dgraph.edge
  */
 interface WeightedEdge<V> : Edge<V> {
 
-	/**
-	 * Returns weight of the edge.
-	 */
-	val weight: Double
+    /**
+     * Returns weight of the edge.
+     */
+    val weight: Double
 }
 
 data class SimpleWeightedEdge<V>(
-	override val source: V,
-	override val target: V,
-	override val weight: Double
+    override val source: V,
+    override val target: V,
+    override val weight: Double,
 ) : WeightedEdge<V>

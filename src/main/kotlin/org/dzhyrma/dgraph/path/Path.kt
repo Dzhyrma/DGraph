@@ -10,23 +10,23 @@ import org.dzhyrma.dgraph.edge.Edge
  */
 interface Path<V, E : Edge<V>> {
 
-	/**
-	 * Returns the source of the path.
-	 */
-	val source: V
+    /**
+     * Returns the source of the path.
+     */
+    val source: V
 
-	/**
-	 * Returns the target of the path.
-	 */
-	val target: V
+    /**
+     * Returns the target of the path.
+     */
+    val target: V
 
-	/**
-	 * Returns the list of vertices used in the path.
-	 */
-	val vertices: List<V>
+    /**
+     * Returns the list of vertices used in the path.
+     */
+    val vertices: List<V>
 
-	/**
-	 * Returns the list of edges used in the path.
-	 */
-	val edges: List<E>
+    /**
+     * Returns the list of edges used in the path.
+     */
+    val edges: List<E>
 }

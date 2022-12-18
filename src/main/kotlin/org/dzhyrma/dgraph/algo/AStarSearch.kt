@@ -1,10 +1,12 @@
 package org.dzhyrma.dgraph.algo
 
-import org.dzhyrma.dgraph.*
+import org.dzhyrma.dgraph.Graph
 import org.dzhyrma.dgraph.edge.WeightedEdge
-import org.dzhyrma.dgraph.path.*
+import org.dzhyrma.dgraph.forEachEdge
+import org.dzhyrma.dgraph.path.SimpleWeightedPath
+import org.dzhyrma.dgraph.path.WeightedPath
 import org.dzhyrma.dgraph.util.FibonacciHeap
-import java.util.*
+import java.util.LinkedList
 
 /**
  * A* is an informed search algorithm, or a best-first search, meaning that it is formulated in terms of weighted
@@ -19,67 +21,115 @@ import java.util.*
  */
 object AStarSearch {
 
-	/**
-	 * Performs an A* search on a weighted graph and finds one of the optimal paths.
-	 *
-	 * @param graph weighted graph
-	 * @param source source vertex, from which the search should start
-	 * @param target target vertex, where the search should end
-	 * @param heuristic admissible function that estimates the cost of the cheapest path from one vertex to another
-	 * @return a shortest(if [heuristic] is admissible) path if it is found, null otherwise
-	 */
-	fun <V, E : WeightedEdge<V>> perform(graph: Graph<V, E>, source: V, target: V, heuristic: (V, V) -> Double): WeightedPath<V, E>? {
-		val previous = HashMap<V, E>(graph.vertices.size)
+    /**
+     * Performs an A* search on a weighted graph and finds one of the optimal paths.
+     *
+     * @param graph weighted graph
+     * @param source source vertex, from which the search should start
+     * @param target target vertex, where the search should end
+     * @param heuristic admissible function that estimates the cost of the cheapest path from a vertex to the target
+     * @return a shortest(if [heuristic] is admissible) path if it is found, null otherwise
+     */
+    fun <V, E : WeightedEdge<V>> perform(
+        graph: Graph<V, E>,
+        source: V,
+        target: V,
+        heuristic: (V) -> Double,
+    ): WeightedPath<V, E>? {
+        val bestPathEdges = HashMap<V, E>(graph.vertices.size)
 
-		val heapNodes = HashMap<V, FibonacciHeap.Node<Tuple<V>>>(graph.vertices.size)
-		val heap = FibonacciHeap<Tuple<V>>()
+        val heapNodes = HashMap<V, FibonacciHeap.Node<PathNode<V>>>(graph.vertices.size)
+        val heap = FibonacciHeap<PathNode<V>>()
 
-		heapNodes[source] = heap.enqueue(Tuple(source, 0.0), heuristic.invoke(source, target))
-		var targetReached = false
-		while (!heap.isEmpty && !targetReached) {
-			heap.dequeueMin()?.value?.also { cur ->
-				if (target == cur.vertex) {
-					targetReached = true
-				} else {
-					graph.forEachEdge(cur.vertex) { edge, adjVertex, weight ->
-						check(weight >= 0) { "A* search algorithm can be applied only for graphs with non negative weights." }
+        heapNodes[source] = heap.enqueue(PathNode(source, 0.0), heuristic(source))
+        var targetReached = false
+        while (!targetReached) {
+            val min = heap.dequeueMin() ?: return null
+            val (currentVertex, bestDistance) = min.value
+            when (currentVertex) {
+                target -> targetReached = true
+                else -> prioritizeAdjacentVertices(
+                    graph = graph,
+                    currentVertex = currentVertex,
+                    bestDistance = bestDistance,
+                    heapNodes = heapNodes,
+                    heap = heap,
+                    heuristic = heuristic,
+                    bestPathEdges = bestPathEdges,
+                )
+            }
+        }
 
-						val newDistance = cur.bestDistance + weight
+        return reconstructPath(target, source, bestPathEdges)
+    }
 
-						val adjNode = heapNodes[adjVertex]
+    private fun <E : WeightedEdge<V>, V> prioritizeAdjacentVertices(
+        graph: Graph<V, E>,
+        currentVertex: V,
+        bestDistance: Double,
+        heapNodes: HashMap<V, FibonacciHeap.Node<PathNode<V>>>,
+        heap: FibonacciHeap<PathNode<V>>,
+        heuristic: (V) -> Double,
+        bestPathEdges: HashMap<V, E>,
+    ) = graph.forEachEdge(currentVertex) { edge, nextVertex, weight ->
+        check(weight >= 0) { "A* search algorithm can be applied only for graphs with non negative weights." }
 
-						if (adjNode == null || newDistance < adjNode.value.bestDistance) {
-							if (adjNode == null || adjNode.isDequeued) {
-								heapNodes[adjVertex] = heap.enqueue(Tuple(adjVertex, newDistance), newDistance + heuristic.invoke(adjVertex, target))
-							} else {
-								adjNode.value.bestDistance = newDistance
-								heap.decreaseKey(adjNode, newDistance + heuristic.invoke(adjVertex, target))
-							}
+        val nextHeapNode = heapNodes[nextVertex]
+        val distanceToNextVertex = bestDistance + weight
+        if (nextHeapNode == null || distanceToNextVertex < nextHeapNode.value.bestDistance) {
+            val nextVertexPriority = distanceToNextVertex + heuristic(nextVertex)
+            changeNextVertexPriority(
+                nextHeapNode = nextHeapNode,
+                heapNodes = heapNodes,
+                heap = heap,
+                nextVertex = nextVertex,
+                distanceToNextVertex = distanceToNextVertex,
+                nextVertexPriority = nextVertexPriority
+            )
+            bestPathEdges[nextVertex] = edge
+        }
+    }
 
-							previous[adjVertex] = edge
-						}
-					}
-				}
-			} ?: break
-		}
+    private fun <V> changeNextVertexPriority(
+        nextHeapNode: FibonacciHeap.Node<PathNode<V>>?,
+        heapNodes: HashMap<V, FibonacciHeap.Node<PathNode<V>>>,
+        heap: FibonacciHeap<PathNode<V>>,
+        nextVertex: V,
+        distanceToNextVertex: Double,
+        nextVertexPriority: Double,
+    ) {
+        when {
+            nextHeapNode == null || nextHeapNode.isDequeued -> {
+                heapNodes[nextVertex] = heap.enqueue(
+                    value = PathNode(nextVertex, distanceToNextVertex),
+                    priority = nextVertexPriority,
+                )
+            }
+            else -> {
+                nextHeapNode.value.bestDistance = distanceToNextVertex
+                heap.decreaseKey(nextHeapNode, nextVertexPriority)
+            }
+        }
+    }
 
-		if (!targetReached) {
-			return null
-		}
+    private fun <E : WeightedEdge<V>, V> reconstructPath(
+        target: V,
+        source: V,
+        bestPathEdges: HashMap<V, E>,
+    ): SimpleWeightedPath<V, E>? {
+        val edges = LinkedList<E>()
+        var current: V = target
+        var curEdge: E
+        while (current != source) {
+            curEdge = bestPathEdges[current] ?: return null
+            edges.push(curEdge)
+            current = if (curEdge.source == current) curEdge.target else curEdge.source
+        }
+        return SimpleWeightedPath(source, target, edges)
+    }
 
-		val edges = LinkedList<E>()
-		var current: V = target
-		var curEdge: E
-		while (current != source) {
-			curEdge = previous[current] ?: return null
-			edges.push(curEdge)
-			current = if (curEdge.source == current) curEdge.target else curEdge.source
-		}
-		return SimpleWeightedPath(source, target, edges)
-	}
-
-	private data class Tuple<V>(
-		val vertex: V,
-		var bestDistance: Double
-	)
+    private data class PathNode<V>(
+        val vertex: V,
+        var bestDistance: Double,
+    )
 }
